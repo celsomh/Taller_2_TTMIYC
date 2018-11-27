@@ -36,9 +36,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         new RequestAsyncTask().execute();
-
-
-
     }
 
 
@@ -61,8 +58,8 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String string) {
             super.onPostExecute(string);
             ListView lView=findViewById(R.id.lvMain);
-            String[] from={"userId", "id","title","body"};
-            int[] to={R.id.id_user_id,R.id.id_id,R.id.id_title,R.id.id_body};
+            String[] from={"title","body"};
+            int[] to={R.id.id_title,R.id.id_body};
             ArrayList<HashMap<String, String>> arrayList = new ArrayList<>();
             HashMap<String, String> hashmap;
 
@@ -75,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
                     String body=friend.getString("body");
 
                     hashmap = new HashMap<>();
-                    hashmap.put("title","Titulo: "+title);
-                    hashmap.put("body","Cuerpo: "+body);
+                    hashmap.put("title",title);
+                    hashmap.put("body",body);
 
                     arrayList.add(hashmap);
                 }
@@ -87,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
                 e.printStackTrace();
             }
-//            Toast.makeText(MainActivity.this, string, Toast.LENGTH_LONG).show();
+
         }
 
     }

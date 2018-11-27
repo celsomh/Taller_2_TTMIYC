@@ -10,11 +10,19 @@
     android:paddingRight="@dimen/margin_linear_layout"
     android:paddingTop="@dimen/margin_linear_layout">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Posts"
+        android:textColor="@color/colorGreen"
+        android:textSize="22sp"
+        android:paddingBottom="10dp"/>
+
     <ListView
         android:id="@+id/lvMain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp"></ListView>
+        android:footerDividersEnabled="true"
+        ></ListView>
 
 </LinearLayout>
