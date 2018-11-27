@@ -3,108 +3,117 @@ package com.android.ttmiyc.taller_2_ttmiyc;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
-    ProgressBar pbarProgreso;
-    private Button btn;
+    ArrayList<String> listDatos;
+    RecyclerView recycler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        btn=findViewById(R.id.id_btn);
-        btn.setOnClickListener(this);
-        pbarProgreso=findViewById(R.id.id_pbar_progreso);
+
+        new RequestAsyncTask().execute();
+
+
+
     }
 
-    @Override
-    public void onClick(View v) {
-        if(v.getId()==R.id.id_btn){
-            RequestAsyncTask resAsTa=new RequestAsyncTask();
-            resAsTa.execute();
-        }
-    }
-
-    public String MyGETRequest() throws IOException {
-
-        URL urlForGetRequest = new URL("https://jsonplaceholder.typicode.com/posts/1");
-
-        String readLine = null;
-
-        HttpURLConnection conection = (HttpURLConnection) urlForGetRequest.openConnection();
-
-        conection.setRequestMethod("GET");
-        conection.setRequestProperty("userId", "a1bcdef"); // set userId its a sample here
-        int responseCode = conection.getResponseCode();
-
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(conection.getInputStream()));
-
-            StringBuffer response = new StringBuffer();
-            while ((readLine = in .readLine()) != null) {
-
-                response.append(readLine);
-
-            } in .close();
-
-            // print result
-            return response.toString();
 
 
-            //GetAndPost.POSTRequest(response.toString());
-        } else {
-            System.out.println("GET NOT WORKED");
-        }
-        return readLine;
-    }
-    class RequestAsyncTask extends AsyncTask<Void,Void,String> {
-
-        @Override
-        protected void onPreExecute() {
-            pbarProgreso.setMax(100);
-            pbarProgreso.setProgress(0);
-        }
+    class RequestAsyncTask extends AsyncTask<Void, Void, String> {
 
         @Override
         protected String doInBackground(Void... voids) {
-            String resul="";
+            String resul;
             try {
                 resul = MyGETRequest();
                 return resul;
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if(isCancelled())
-                return resul;
-
-            return resul;
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... voids) {
-
+            return null;
         }
 
         @Override
         protected void onPostExecute(String string) {
-            Toast.makeText(MainActivity.this, string, Toast.LENGTH_LONG).show();
+            super.onPostExecute(string);
+            ListView lView=findViewById(R.id.lvMain);
+            String[] from={"userId", "id","title","body"};
+            int[] to={R.id.id_user_id,R.id.id_id,R.id.id_title,R.id.id_body};
+            ArrayList<HashMap<String, String>> arrayList = new ArrayList<>();
+            HashMap<String, String> hashmap;
+
+            try{
+                JSONArray jArray = new JSONArray(string);
+                for (int i = 0; i < jArray.length(); i++) {
+                    JSONObject friend = jArray.getJSONObject(i);
+
+                    String title=friend.getString("title");
+                    String body=friend.getString("body");
+
+                    hashmap = new HashMap<>();
+                    hashmap.put("title","Titulo: "+title);
+                    hashmap.put("body","Cuerpo: "+body);
+
+                    arrayList.add(hashmap);
+                }
+
+                SimpleAdapter adapter = new SimpleAdapter(MainActivity.this, arrayList, R.layout.item_list, from, to);
+                lView.setAdapter(adapter);
+            }catch(JSONException e){
+
+                e.printStackTrace();
+            }
+//            Toast.makeText(MainActivity.this, string, Toast.LENGTH_LONG).show();
         }
 
-        @Override
-        protected void onCancelled() {
-
-        }
     }
+
+    public String MyGETRequest() throws IOException {
+        URL urlForGetRequest = new URL("https://jsonplaceholder.typicode.com/posts");
+
+        String readLine = null;
+
+        HttpURLConnection conection = (HttpURLConnection) urlForGetRequest.openConnection();
+        conection.setRequestProperty("charset","utf-8");
+        conection.setRequestMethod("GET");
+        conection.connect();
+
+        InputStream inputStream=conection.getInputStream();
+        StringBuffer buffer=new StringBuffer();
+
+        BufferedReader reader=new BufferedReader(new InputStreamReader(inputStream));
+
+        while ((readLine=reader.readLine()) != null){
+            buffer.append(readLine);
+        }
+
+        String resultJSON=buffer.toString();
+
+        return resultJSON;
+    }
+
 }
